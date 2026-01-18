@@ -14,11 +14,15 @@ const app = express();
 // 🔥 Proper CORS (localhost safe, hosting ready)
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend local
+    origin: [
+      "http://localhost:5173",
+      "https://election01.vercel.app"
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
+
 
 app.use(express.json());
 
