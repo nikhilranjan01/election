@@ -21,6 +21,7 @@ router.post("/", auth, async (req, res) => {
       return res.status(400).json({ msg: "Invalid nominee" });
     }
 
+    // 🔥 Save vote
     const vote = new Vote({
       user: req.user.id,
       nominee: nomineeId,
@@ -29,7 +30,15 @@ router.post("/", auth, async (req, res) => {
 
     await vote.save();
 
-    res.status(201).json({ msg: "Vote recorded successfully" });
+    // 🔥 IMPORTANT: increment nominee votes
+    nominee.votes = (nominee.votes || 0) + 1;
+    await nominee.save();
+
+    res.status(201).json({
+      msg: "Vote recorded successfully",
+      nomineeId,
+      position,
+    });
   } catch (error) {
     if (error.code === 11000) {
       return res

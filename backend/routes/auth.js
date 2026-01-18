@@ -5,20 +5,20 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// Student email rule
+// Student email rule (ONLY FOR SIGNUP)
 const studentEmailRegex = /^[a-zA-Z0-9._]+@jietjodhpur\.ac\.in$/;
 
-// ================== SIGNUP ==================
+// ================== SIGNUP (STUDENT ONLY) ==================
 router.post("/signup", async (req, res) => {
   let { email, password } = req.body;
 
   try {
     email = email.toLowerCase().trim();
 
-    // Student email validation
+    // 🔒 student email validation ONLY here
     if (!studentEmailRegex.test(email)) {
       return res.status(400).json({
-        msg: "Invalid student email. Must be name@jietjodhpur.ac.in",
+        msg: "Only JIET student emails allowed",
       });
     }
 
@@ -28,7 +28,6 @@ router.post("/signup", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 🔥 Role forcefully student
     const user = new User({
       email,
       password: hashedPassword,
@@ -50,7 +49,7 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// ================== LOGIN ==================
+// ================== LOGIN (ADMIN + STUDENT) ==================
 router.post("/login", async (req, res) => {
   let { email, password } = req.body;
 
@@ -61,12 +60,7 @@ router.post("/login", async (req, res) => {
     if (!user)
       return res.status(400).json({ msg: "Invalid credentials" });
 
-    // Student email check
-    if (user.role === "student" && !studentEmailRegex.test(email)) {
-      return res.status(400).json({
-        msg: "Invalid student email format",
-      });
-    }
+    // 🔥 NO email regex check here
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
