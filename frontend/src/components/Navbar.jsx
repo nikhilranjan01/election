@@ -135,7 +135,7 @@ function Navbar() {
                   to="/login"
                   className="block hover:bg-indigo-600 px-3 py-2 rounded-md"
                 >
-                  Admin / Student Login
+                  Student Login
                 </Link>
                 <Link
                   to="/signup"
