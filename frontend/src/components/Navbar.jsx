@@ -27,7 +27,7 @@ function Navbar() {
               className="h-10 w-10 mr-2 rounded-full shadow-md"
             />
             <h1 className="text-lg md:text-xl font-bold tracking-wide">
-              JIET Student Council Election
+              Student Council Election
             </h1>
           </div>
 
@@ -62,7 +62,7 @@ function Navbar() {
                   to="/login"
                   className="hover:bg-indigo-700 px-3 py-2 rounded-md transition"
                 >
-                  Admin / Student Login
+                Login
                 </Link>
                 <Link
                   to="/signup"
@@ -135,7 +135,7 @@ function Navbar() {
                   to="/login"
                   className="block hover:bg-indigo-600 px-3 py-2 rounded-md"
                 >
-                  Student Login
+                Login
                 </Link>
                 <Link
                   to="/signup"
