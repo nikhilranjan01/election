@@ -2,43 +2,48 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-require("dotenv").config();
 
 const router = express.Router();
 
+// Student email rule
+const studentEmailRegex = /^[a-zA-Z0-9._]+@jietjodhpur\.ac\.in$/;
+
 // ================== SIGNUP ==================
 router.post("/signup", async (req, res) => {
-  const { email, password, role } = req.body;
+  let { email, password } = req.body;
 
   try {
-    // Only students must follow the email rule
-    const studentEmailRegex = /^[a-zA-Z0-9._]+@jietjodhpur\.ac\.in$/;
-    if (role === "student" && !studentEmailRegex.test(email)) {
+    email = email.toLowerCase().trim();
+
+    // Student email validation
+    if (!studentEmailRegex.test(email)) {
       return res.status(400).json({
-        msg: "Invalid student email. Must be in the format name@jietjodhpur.ac.in",
+        msg: "Invalid student email. Must be name@jietjodhpur.ac.in",
       });
     }
 
-    // Check if user already exists
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ msg: "User already exists" });
+    const existingUser = await User.findOne({ email });
+    if (existingUser)
+      return res.status(400).json({ msg: "User already exists" });
 
-    // Create user
-    user = new User({
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 🔥 Role forcefully student
+    const user = new User({
       email,
-      password: await bcrypt.hash(password, 10),
-      role: role || "student", // default to student if not provided
+      password: hashedPassword,
+      role: "student",
     });
+
     await user.save();
 
-    // Generate JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    res.json({ token });
+    res.status(201).json({ token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Server error" });
@@ -47,27 +52,26 @@ router.post("/signup", async (req, res) => {
 
 // ================== LOGIN ==================
 router.post("/login", async (req, res) => {
-  console.log("Login request body:", req.body);
-  const { email, password } = req.body;
+  let { email, password } = req.body;
 
   try {
-    // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ msg: "Invalid credentials" });
+    email = email.toLowerCase().trim();
 
-    // If student, check email format again (extra safety)
-    const studentEmailRegex = /^[a-zA-Z0-9._]+@jietjodhpur\.ac\.in$/;
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(400).json({ msg: "Invalid credentials" });
+
+    // Student email check
     if (user.role === "student" && !studentEmailRegex.test(email)) {
       return res.status(400).json({
-        msg: "Invalid student email. Must use name@jietjodhpur.ac.in format",
+        msg: "Invalid student email format",
       });
     }
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
+    if (!isMatch)
+      return res.status(400).json({ msg: "Invalid credentials" });
 
-    // Generate JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
@@ -80,16 +84,5 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 });
-
-// router.post("/logout", (req, res) => {
-//   res.clearCookie("token", {
-//     httpOnly: true,
-//     secure: false,   // same value you used while setting the cookie
-//     sameSite: "lax"
-//   });
-
-//   return res.json({ 5message: "Logged out successfully" });
-// });
-
 
 module.exports = router;
