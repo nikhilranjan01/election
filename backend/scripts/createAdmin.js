@@ -39,4 +39,4 @@ const createAdmin = async (email, password) => {
 };
 
 // 🔥 Change email/password here
-createAdmin("admin@jietjodhpur.ac.in", "12345678");
+createAdmin("admin@jietjodhpur.ac.in", "Admin@123");
