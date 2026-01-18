@@ -1,36 +1,38 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaRegEyeSlash } from "react-icons/fa";
+import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
-const Login = ({ setToken }) => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
+  const { login } = useAuth(); // 🔥 central auth
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        { email, password }
-      );
+      const res = await api.post("/api/auth/login", {
+        email,
+        password,
+      });
 
-      localStorage.setItem("token", response.data.token);
-      setToken(response.data.token); // 👈 Navbar immediately update hoga
-      const decoded = JSON.parse(atob(response.data.token.split(".")[1]));
+      // token payload decode (safe)
+      const payload = JSON.parse(atob(res.data.token.split(".")[1]));
 
-      if (decoded.role === "admin") {
-        navigate("/admin-dashboard");
-      } else {
-        navigate("/dashboard");
-      }
+      // 🔐 central login
+      login(res.data.token, payload.role);
+
+      // role-based redirect
+      navigate(payload.role === "admin" ? "/admin-dashboard" : "/dashboard");
     } catch (err) {
-      setError(err.response?.data?.msg || "Login failed.");
+      setError(err.response?.data?.msg || "Login failed");
     }
   };
 
@@ -92,24 +94,22 @@ const Login = ({ setToken }) => {
             </button>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
-            className="w-full py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition duration-200"
+            className="w-full py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
           >
             Login
           </button>
         </form>
 
-        {/* Signup link */}
         <p className="text-center mt-6 text-gray-700">
           Don’t have an account?{" "}
-          <a
-            href="/signup"
+          <Link
+            to="/signup"
             className="font-medium text-blue-600 hover:text-blue-800"
           >
             Signup
-          </a>
+          </Link>
         </p>
       </div>
     </div>

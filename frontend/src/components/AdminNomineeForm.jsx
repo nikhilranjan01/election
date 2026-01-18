@@ -1,35 +1,39 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
-function AdminNomineeForm({ token, setNominees }) {
+function AdminNomineeForm({ setNominees }) {
   const [name, setName] = useState("");
   const [position, setPosition] = useState("president");
   const [isLoading, setIsLoading] = useState(false);
+
+  const { token } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/nominees", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": token,
-        },
-        body: JSON.stringify({ name, position }),
-      });
+      const res = await api.post(
+        "/api/nominees",
+        { name, position },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      if (!res.ok) throw new Error("Failed to add nominee");
-
-      const newNominee = await res.json();
-      setNominees((prev) => [...prev, newNominee]);
+      setNominees((prev) => [...prev, res.data]);
       setName("");
 
       toast.success("Nominee added successfully!");
     } catch (error) {
       console.error("Add nominee error:", error);
-      toast.error("Failed to add nominee.");
+      toast.error(
+        error.response?.data?.msg || "Failed to add nominee."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +92,7 @@ function AdminNomineeForm({ token, setNominees }) {
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full p-3 rounded-lg text-white bg-green-600 hover:bg-green-700 active:scale-95 transition font-semibold shadow-md disabled:bg-green-400 disabled:cursor-not-allowed`}
+          className="w-full p-3 rounded-lg text-white bg-green-600 hover:bg-green-700 active:scale-95 transition font-semibold shadow-md disabled:bg-green-400 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <svg

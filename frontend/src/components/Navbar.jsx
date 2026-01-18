@@ -1,28 +1,19 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-function Navbar({ token, setToken }) {
+function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
+  const { token, role, logout } = useAuth();
+
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    setToken(null); // 👈 state reset
+    logout(); // 🔥 central logout
     navigate("/login");
   };
 
-  let isAdmin = false;
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      isAdmin = payload.role === "admin";
-    } catch (error) {
-      console.error("Invalid token:", error);
-      localStorage.removeItem("token");
-      setToken(null);
-      navigate("/login");
-    }
-  }
+  const isAdmin = role === "admin";
 
   return (
     <nav className="bg-gradient-to-r from-blue-700 to-indigo-600 text-white shadow-md sticky top-0 z-50">
@@ -100,7 +91,9 @@ function Navbar({ token, setToken }) {
                   strokeLinejoin="round"
                   strokeWidth="2"
                   d={
-                    isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"
+                    isOpen
+                      ? "M6 18L18 6M6 6l12 12"
+                      : "M4 6h16M4 12h16M4 18h16"
                   }
                 />
               </svg>

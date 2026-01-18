@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaRegEyeSlash } from "react-icons/fa";
+import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
-const Signup = ({ setToken }) => {
+const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,21 +21,26 @@ const Signup = ({ setToken }) => {
     const emailRegex = /^[a-zA-Z0-9._]+@jietjodhpur\.ac\.in$/;
     if (!emailRegex.test(email)) {
       setError(
-        "Please use a valid JIET college email (e.g., meraj@jietjodhpur.ac.in)."
+        "Please use a valid JIET college email (e.g., student@jietjodhpur.ac.in)."
       );
       return;
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/signup",
-        { email, password }
-      );
-      localStorage.setItem("token", response.data.token);
-      setToken(response.data.token); // <-- yeh add karo
+      const res = await api.post("/api/auth/signup", {
+        email,
+        password,
+      });
+
+      // decode role from token
+      const payload = JSON.parse(atob(res.data.token.split(".")[1]));
+
+      // 🔐 central login
+      login(res.data.token, payload.role);
+
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.msg || "Signup failed.");
+      setError(err.response?.data?.msg || "Signup failed");
     }
   };
 
@@ -68,7 +76,7 @@ const Signup = ({ setToken }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="e.g., student@jietjodhpur.ac.in"
+              placeholder="student@jietjodhpur.ac.in"
               required
             />
           </div>
@@ -94,24 +102,22 @@ const Signup = ({ setToken }) => {
             </button>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
-            className="w-full py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition duration-200"
+            className="w-full py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition"
           >
             Signup
           </button>
         </form>
 
-        {/* Login link */}
         <p className="text-center mt-6 text-gray-700">
           Already have an account?{" "}
-          <a
-            href="/login"
+          <Link
+            to="/login"
             className="font-medium text-blue-600 hover:text-blue-800"
           >
             Login
-          </a>
+          </Link>
         </p>
       </div>
     </div>

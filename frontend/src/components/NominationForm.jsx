@@ -1,30 +1,38 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
-function NominationForm({ token, setNominees }) {
+function NominationForm({ setNominees }) {
   const [name, setName] = useState("");
   const [position, setPosition] = useState("president");
   const [isLoading, setIsLoading] = useState(false);
 
+  const { token } = useAuth();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
-      const res = await fetch("http://localhost:5000/api/nominees", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": token,
-        },
-        body: JSON.stringify({ name, position }),
-      });
-      if (!res.ok) throw new Error("Failed to submit nomination");
-      const newNominee = await res.json();
+      const res = await api.post(
+        "/api/nominees",
+        { name, position },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const newNominee = res.data;
 
       setNominees((prev) => {
         const exists = prev.find((n) => n._id === newNominee._id);
         if (exists) {
-          return prev.map((n) => (n._id === newNominee._id ? newNominee : n));
+          return prev.map((n) =>
+            n._id === newNominee._id ? newNominee : n
+          );
         }
         return [...prev, newNominee];
       });
@@ -33,7 +41,9 @@ function NominationForm({ token, setNominees }) {
       toast.success("Nomination submitted successfully!");
     } catch (error) {
       console.error("Nomination error:", error);
-      toast.error("Failed to submit nomination.");
+      toast.error(
+        error.response?.data?.msg || "Failed to submit nomination."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -44,9 +54,13 @@ function NominationForm({ token, setNominees }) {
       <h3 className="text-xl font-semibold text-gray-800 mb-4">
         Nominate a Candidate
       </h3>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700"
+          >
             Candidate Name
           </label>
           <input
@@ -57,10 +71,15 @@ function NominationForm({ token, setNominees }) {
             placeholder="Enter candidate name"
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
             disabled={isLoading}
+            required
           />
         </div>
+
         <div>
-          <label htmlFor="position" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="position"
+            className="block text-sm font-medium text-gray-700"
+          >
             Position
           </label>
           <select
@@ -76,10 +95,13 @@ function NominationForm({ token, setNominees }) {
             <option value="treasurer">Treasurer</option>
           </select>
         </div>
+
         <button
           type="submit"
-          className={`w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition disabled:bg-green-400 ${isLoading ? "cursor-not-allowed" : ""}`}
           disabled={isLoading}
+          className={`w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition ${
+            isLoading ? "cursor-not-allowed bg-green-400" : ""
+          }`}
         >
           {isLoading ? "Submitting..." : "Submit Nomination"}
         </button>

@@ -1,113 +1,96 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 const Dashboard = () => {
   const [nominees, setNominees] = useState([]);
-  // 1. Change state to track voted *positions* instead of nominee IDs
-  const [votedPositions, setVotedPositions] = useState([]);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
-  // Redirect user if token missing
+  const navigate = useNavigate();
+  const { token, role } = useAuth();
+
+  // 🔒 Protect route
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
+    if (!token) {
       navigate("/login");
     }
-    // **BONUS:** Fetch the user's current votes when the component loads
-    fetchVotedPositions();
-  }, [navigate]);
-
-  // Function to fetch the user's current votes (positions they've voted for)
-  const fetchVotedPositions = async () => {
-    try {
-      // NOTE: You'll need a new backend endpoint for this (e.g., /api/votes/user)
-      const response = await axios.get("http://localhost:5000/api/votes/user", {
-        headers: { "x-auth-token": localStorage.getItem("token") },
-      });
-      // Assuming the backend returns an array of positions already voted for: ['President', 'Vice President']
-      setVotedPositions(response.data.votedPositions || []);
-    } catch (err) {
-      console.error("Failed to load user votes:", err);
-      // It's okay to let voting continue even if this fails, but log the error
+    if (role !== "student") {
+      navigate("/");
     }
-  };
+  }, [token, role, navigate]);
 
-  // Fetch nominees
+  // 📥 Fetch nominees
   useEffect(() => {
     const fetchNominees = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/nominees", {
-          headers: { "x-auth-token": localStorage.getItem("token") },
-        });
-        setNominees(response.data);
+        const res = await api.get("/api/nominees");
+        setNominees(res.data);
       } catch (err) {
-        setError("Failed to load nominees.");
+        setError("Failed to load nominees");
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchNominees();
   }, []);
 
-  // Handle vote
-  const handleVote = async (nomineeId, position) => {
-    // Check if the user has already voted for this position locally (optional, but good for UX)
-    if (votedPositions.includes(position)) {
-      setError(`You have already voted for the position of ${position}.`);
-      return;
-    }
-
-    const candidate = nominees.find((n) => n._id === nomineeId);
-    const candidateName = candidate?.name;
-
+  // 🗳️ Vote
+  const handleVote = async (nomineeId, position, name) => {
     if (
-      window.confirm(
-        `Are you sure you want to vote for\n ${candidateName} (${position})?`
+      !window.confirm(
+        `Are you sure you want to vote for ${name} (${position})?`
       )
-    ) {
-      try {
-        await axios.post(
-          "http://localhost:5000/api/votes",
-          { nomineeId, position },
-          { headers: { "x-auth-token": localStorage.getItem("token") } }
-        );
+    )
+      return;
 
-        // 2. IMPORTANT: On successful vote, update the votedPositions state
-        setVotedPositions((prevPositions) => [...prevPositions, position]);
-        alert("Vote cast successfully!");
-        setError(""); // Clear previous errors
-      } catch (err) {
-        // The backend should also prevent duplicate votes and return an error here
-        const errorMsg =
-          err.response?.data?.msg ||
-          "Voting failed. You may have already voted for this position.";
-        setError(errorMsg);
-      }
-    } else {
-      alert("You canceled your vote.");
+    try {
+      await api.post(
+        "/api/votes",
+        { nomineeId, position },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      alert("✅ Vote cast successfully!");
+      setError("");
+    } catch (err) {
+      setError(
+        err.response?.data?.msg ||
+          "Voting failed. You may have already voted."
+      );
     }
   };
 
+  if (loading) {
+    return (
+      <p className="text-center text-white text-lg mt-10">Loading nominees…</p>
+    );
+  }
+
   return (
     <div
-      className="min-h-screen bg-cover bg-center flex items-start py-10"
+      className="min-h-screen bg-cover bg-center py-10"
       style={{ backgroundImage: "url('/images/background.jpeg')" }}
     >
       <div className="container mx-auto px-4">
-        {/* Header */}
-        <h2 className="text-3xl font-bold text-white drop-shadow mb-6">
+        <h2 className="text-3xl font-bold text-white mb-6 drop-shadow">
           Student Dashboard
         </h2>
 
-        {/* Error Message */}
         {error && (
-          <p className="text-red-500 bg-white/70 p-3 rounded mb-4 w-fit px-5 shadow">
+          <p className="text-red-600 bg-white/80 p-3 rounded mb-4 w-fit shadow">
             {error}
           </p>
         )}
 
-        {/* Nominee List */}
         {nominees.length === 0 ? (
-          <p className="text-white text-lg bg-black/40 p-4 w-fit rounded">
+          <p className="text-white bg-black/40 p-4 rounded w-fit">
             No nominees available for voting.
           </p>
         ) : (
@@ -115,28 +98,27 @@ const Dashboard = () => {
             {nominees.map((nominee) => (
               <div
                 key={nominee._id}
-                className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-xl border border-gray-300 hover:shadow-2xl transition"
+                className="bg-white/80 p-6 rounded-xl shadow-xl border hover:shadow-2xl transition"
               >
                 <h3 className="text-xl font-semibold text-gray-800">
                   {nominee.name}
                 </h3>
 
-                <p className="mt-1 text-gray-600">
-                  <strong className="text-gray-800">Position:</strong>{" "}
-                  {nominee.position}
+                <p className="mt-1 text-gray-700">
+                  <strong>Position:</strong> {nominee.position}
                 </p>
 
-                {/* 3. Check if the nominee's *position* is in the votedPositions array */}
                 <button
-                  onClick={() => handleVote(nominee._id, nominee.position)}
-                  className={`mt-4 w-full p-3 rounded-lg font-medium shadow-md transition ${
-                    votedPositions.includes(nominee.position)
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-600 text-white hover:bg-blue-700"
-                  }`}
-                  disabled={votedPositions.includes(nominee.position)}
+                  onClick={() =>
+                    handleVote(
+                      nominee._id,
+                      nominee.position,
+                      nominee.name
+                    )
+                  }
+                  className="mt-4 w-full p-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
                 >
-                  {votedPositions.includes(nominee.position) ? "Voted" : "Vote"}
+                  Vote
                 </button>
               </div>
             ))}

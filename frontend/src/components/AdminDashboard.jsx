@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 const AdminDashboard = () => {
   const [results, setResults] = useState([]);
@@ -9,66 +9,64 @@ const AdminDashboard = () => {
   const [nomineeName, setNomineeName] = useState("");
   const [position, setPosition] = useState("president");
   const [error, setError] = useState("");
+
   const navigate = useNavigate();
+  const { token, role } = useAuth();
 
-  // 🔐 Check token validity
+  // 🔐 Protect admin route
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return navigate("/login");
-
-    try {
-      const decoded = jwtDecode(token);
-      if (decoded.exp * 1000 < Date.now()) {
-        localStorage.removeItem("token");
-        navigate("/login");
-      }
-    } catch (err) {
-      localStorage.removeItem("token");
-      navigate("/login");
-    }
-  }, [navigate]);
+    if (!token) navigate("/login");
+    if (role !== "admin") navigate("/");
+  }, [token, role, navigate]);
 
   // 📊 Fetch results
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/votes/results",
-          { headers: { "x-auth-token": localStorage.getItem("token") } }
-        );
-        setResults(response.data);
+        const res = await api.get("/api/votes/results", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setResults(res.data);
       } catch (err) {
         setError(err.response?.data?.msg || "Failed to load results.");
       }
     };
     fetchResults();
-  }, []);
+  }, [token]);
 
   // 👤 Fetch nominees
   useEffect(() => {
     const fetchNominees = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/nominees", {
-          headers: { "x-auth-token": localStorage.getItem("token") },
+        const res = await api.get("/api/nominees", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-        setNominees(response.data);
+        setNominees(res.data);
       } catch (err) {
         setError(err.response?.data?.msg || "Failed to load nominees.");
       }
     };
     fetchNominees();
-  }, []);
+  }, [token]);
 
   // ➕ Add nominee
   const addNominee = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/nominees",
+      const res = await api.post(
+        "/api/nominees",
         { name: nomineeName, position },
-        { headers: { "x-auth-token": localStorage.getItem("token") } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      setNominees([...nominees, response.data]);
+      setNominees([...nominees, res.data]);
       setNomineeName("");
     } catch (err) {
       setError(err.response?.data?.msg || "Failed to add nominee.");
@@ -78,10 +76,12 @@ const AdminDashboard = () => {
   // ❌ Delete nominee
   const deleteNominee = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/nominees/${id}`, {
-        headers: { "x-auth-token": localStorage.getItem("token") },
+      await api.delete(`/api/nominees/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      setNominees(nominees.filter((nominee) => nominee._id !== id));
+      setNominees(nominees.filter((n) => n._id !== id));
     } catch (err) {
       setError(err.response?.data?.msg || "Failed to delete nominee.");
     }
@@ -182,19 +182,19 @@ const AdminDashboard = () => {
             <p className="text-gray-600">No votes cast yet.</p>
           ) : (
             <div className="space-y-4">
-              {results.map((result) => (
+              {results.map((result, index) => (
                 <div
-                  key={result._id.nomineeId}
+                  key={index}
                   className="p-4 border rounded-lg bg-gray-50 shadow-sm"
                 >
                   <p>
-                    <strong>Nominee:</strong> {result.nominee.name}
+                    <strong>Nominee:</strong> {result.nomineeName}
                   </p>
                   <p>
-                    <strong>Position:</strong> {result._id.position}
+                    <strong>Position:</strong> {result.position}
                   </p>
                   <p>
-                    <strong>Votes:</strong> {result.count}
+                    <strong>Votes:</strong> {result.votes}
                   </p>
                 </div>
               ))}
