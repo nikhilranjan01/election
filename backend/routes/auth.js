@@ -80,3 +80,8 @@ router.post("/login", async (req, res) => {
 });
 
 module.exports = router;
+
+console.log("LOGIN EMAIL:", email);
+console.log("PLAIN PASSWORD:", password);
+console.log("HASHED PASSWORD:", user.password);
+console.log("MATCH:", await bcrypt.compare(password, user.password));
