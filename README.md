@@ -106,6 +106,8 @@ student-voting-system/
 │   ├── postcss.config.js
 │   ├── vite.config.js
 │   └── package.json
+│
+└── README.md
 ```
 
 ---
