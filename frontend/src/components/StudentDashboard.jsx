@@ -68,12 +68,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center py-10"
-      style={{ backgroundImage: "url('/images/background.jpeg')" }}
-    >
+<div
+  className="min-h-screen py-10 
+  bg-gradient-to-br from-red-200 via-blue-300 to-indigo-200"
+>
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-white mb-6">
+        <h2 className="text-3xl font-bold text-black mb-6">
           Student Dashboard
         </h2>
 

@@ -81,7 +81,6 @@ const AdminDashboard = () => {
   };
 
   // ================= DELETE RESULT (FRONTEND ONLY) =================
-  // NOTE: Backend API nahi hai to sirf UI se remove hoga
   const deleteResult = (indexToDelete) => {
     const updated = results.filter((_, i) => i !== indexToDelete);
     setResults(updated);
@@ -89,8 +88,8 @@ const AdminDashboard = () => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center pt-24"
-      style={{ backgroundImage: "url('/images/background.jpeg')" }}
+      className="min-h-screen pt-24 
+  bg-gradient-to-br from-blue-100 via-indigo-200 to-purple-200"
     >
       <div className="backdrop-blur-md bg-white bg-opacity-70 max-w-5xl mx-auto p-6 rounded-2xl shadow-xl">
 

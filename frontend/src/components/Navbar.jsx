@@ -1,10 +1,162 @@
+// import React, { useState } from "react";
+// import { Link, useNavigate, useLocation } from "react-router-dom";
+// import { useAuth } from "../context/AuthContext";
+
+// function Navbar() {
+//   const [isOpen, setIsOpen] = useState(false);
+//   const navigate = useNavigate();
+//   const location = useLocation(); // current path
+
+//   const { token, role, logout } = useAuth();
+
+//   // safe login check
+//   const isLoggedIn =
+//     token && token !== "null" && token !== "undefined";
+
+//   const handleLogout = () => {
+//     logout();
+//     navigate("/login");
+//   };
+
+//   const isAdmin = role === "admin";
+
+//   // active page checks
+//   const isLoginPage = location.pathname === "/login";
+//   const isSignupPage = location.pathname === "/signup";
+
+//   return (
+//     <nav className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-700 text-white shadow-lg sticky top-0 z-50">
+//       <div className="max-w-7xl mx-auto px-4">
+//         <div className="flex justify-between h-16 items-center">
+
+//           {/* LOGO + TITLE */}
+//           <div className="flex items-center">
+//             <img
+//               src="/vite.jpg"
+//               alt="Logo"
+//               className="h-10 w-10 mr-2 rounded-full shadow-md"
+//             />
+//             <h1 className="text-lg md:text-xl font-bold tracking-wide">
+//               Student Voting System
+//             </h1>
+//           </div>
+
+//           {/* DESKTOP MENU */}
+//           <div className="hidden md:flex items-center space-x-4">
+
+//             {isLoggedIn && (
+//               <Link
+//                 to={isAdmin ? "/admin-dashboard" : "/dashboard"}
+//                 className="hover:bg-white/20 px-3 py-2 rounded-md transition"
+//               >
+//                 {isAdmin ? "Admin Dashboard" : "Student Dashboard"}
+//               </Link>
+//             )}
+
+//             {isLoggedIn ? (
+//               <button
+//                 onClick={handleLogout}
+//                 className="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-md transition"
+//               >
+//                 Logout
+//               </button>
+//             ) : (
+//               <>
+//                 {/* LOGIN */}
+//                 <Link
+//                   to="/login"
+//                   className={`px-3 py-2 rounded-md transition
+//                     ${
+//                       isLoginPage
+//                         ? "bg-green-500"
+//                         : "hover:bg-white/20"
+//                     }`}
+//                 >
+//                   Login
+//                 </Link>
+
+//                 {/* SIGNUP */}
+//                 <Link
+//                   to="/signup"
+//                   className={`px-3 py-2 rounded-md transition
+//                     ${
+//                       isSignupPage
+//                         ? "bg-green-500"
+//                         : "hover:bg-white/20"
+//                     }`}
+//                 >
+//                   Signup
+//                 </Link>
+//               </>
+//             )}
+//           </div>
+
+//           {/* MOBILE BUTTON */}
+//           <div className="md:hidden">
+//             <button onClick={() => setIsOpen(!isOpen)} className="text-2xl">
+//               ☰
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* MOBILE DROPDOWN */}
+//       {isOpen && (
+//         <div className="md:hidden bg-gradient-to-b from-blue-700 to-indigo-800 px-3 py-2 space-y-2">
+
+//           {isLoggedIn && (
+//             <Link
+//               to={isAdmin ? "/admin-dashboard" : "/dashboard"}
+//               className="block hover:bg-white/20 px-3 py-2 rounded-md"
+//             >
+//               {isAdmin ? "Admin Dashboard" : "Student Dashboard"}
+//             </Link>
+//           )}
+
+//           {isLoggedIn ? (
+//             <button
+//               onClick={handleLogout}
+//               className="w-full text-left bg-red-500 px-3 py-2 rounded-md"
+//             >
+//               Logout
+//             </button>
+//           ) : (
+//             <>
+//               <Link
+//                 to="/login"
+//                 className={`block px-3 py-2 rounded-md
+//                   ${isLoginPage ? "bg-green-500" : "hover:bg-white/20"}`}
+//               >
+//                 Login
+//               </Link>
+
+//               <Link
+//                 to="/signup"
+//                 className={`block px-3 py-2 rounded-md
+//                   ${isSignupPage ? "bg-green-500" : "hover:bg-white/20"}`}
+//               >
+//                 Signup
+//               </Link>
+//             </>
+//           )}
+//         </div>
+//       )}
+//     </nav>
+//   );
+// }
+
+// export default Navbar;
+
+
+
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
-  const [isOpen, setIsOpen] = useState(false); // mobile toggle
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation(); // current path
 
   const { token, role, logout } = useAuth();
 
@@ -19,55 +171,75 @@ function Navbar() {
 
   const isAdmin = role === "admin";
 
+  // active page checks
+  const isHomePage = location.pathname === "/";
+  const isLoginPage = location.pathname === "/login";
+  const isSignupPage = location.pathname === "/signup";
+
   return (
-    <nav className="bg-gradient-to-r from-blue-700 to-indigo-600 text-white shadow-md sticky top-0 z-50">
+    <nav className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-700 text-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16 items-center">
 
           {/* LOGO + TITLE */}
-          <div className="flex items-center">
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={() => navigate("/")}
+          >
             <img
-              src="/images/jiet-logo.png"
+              src="/vite.jpg"
               alt="Logo"
-              className="h-10 w-10 mr-2 rounded-full"
+              className="h-10 w-10 mr-2 rounded-full shadow-md"
             />
-            <h1 className="text-lg md:text-xl font-bold">
-              Student Council Election
+            <h1 className="text-lg md:text-xl font-bold tracking-wide">
+              Student Voting System
             </h1>
           </div>
 
           {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center space-x-4">
 
-            {/* Dashboard only if login */}
+            {/* HOME */}
+            <Link
+              to="/"
+              className={`px-3 py-2 rounded-md transition
+                ${isHomePage ? "bg-green-500" : "hover:bg-white/20"}`}
+            >
+              Home
+            </Link>
+
             {isLoggedIn && (
               <Link
                 to={isAdmin ? "/admin-dashboard" : "/dashboard"}
-                className="hover:bg-indigo-700 px-3 py-2 rounded-md"
+                className="hover:bg-white/20 px-3 py-2 rounded-md transition"
               >
                 {isAdmin ? "Admin Dashboard" : "Student Dashboard"}
               </Link>
             )}
 
-            {/* Login / Logout */}
             {isLoggedIn ? (
               <button
                 onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-md"
+                className="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-md transition"
               >
                 Logout
               </button>
             ) : (
               <>
+                {/* LOGIN */}
                 <Link
                   to="/login"
-                  className="hover:bg-indigo-700 px-3 py-2 rounded-md"
+                  className={`px-3 py-2 rounded-md transition
+                    ${isLoginPage ? "bg-green-500" : "hover:bg-white/20"}`}
                 >
                   Login
                 </Link>
+
+                {/* SIGNUP */}
                 <Link
                   to="/signup"
-                  className="hover:bg-green-700 px-3 py-2 rounded-md"
+                  className={`px-3 py-2 rounded-md transition
+                    ${isSignupPage ? "bg-green-500" : "hover:bg-white/20"}`}
                 >
                   Signup
                 </Link>
@@ -77,7 +249,7 @@ function Navbar() {
 
           {/* MOBILE BUTTON */}
           <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)}>
+            <button onClick={() => setIsOpen(!isOpen)} className="text-2xl">
               ☰
             </button>
           </div>
@@ -86,12 +258,21 @@ function Navbar() {
 
       {/* MOBILE DROPDOWN */}
       {isOpen && (
-        <div className="md:hidden bg-indigo-700 px-3 py-2 space-y-2">
+        <div className="md:hidden bg-gradient-to-b from-blue-700 to-indigo-800 px-3 py-2 space-y-2">
+
+          {/* HOME */}
+          <Link
+            to="/"
+            className={`block px-3 py-2 rounded-md
+              ${isHomePage ? "bg-green-500" : "hover:bg-white/20"}`}
+          >
+            Home
+          </Link>
 
           {isLoggedIn && (
             <Link
               to={isAdmin ? "/admin-dashboard" : "/dashboard"}
-              className="block hover:bg-indigo-600 px-3 py-2 rounded-md"
+              className="block hover:bg-white/20 px-3 py-2 rounded-md"
             >
               {isAdmin ? "Admin Dashboard" : "Student Dashboard"}
             </Link>
@@ -108,19 +289,21 @@ function Navbar() {
             <>
               <Link
                 to="/login"
-                className="block hover:bg-indigo-600 px-3 py-2 rounded-md"
+                className={`block px-3 py-2 rounded-md
+                  ${isLoginPage ? "bg-green-500" : "hover:bg-white/20"}`}
               >
                 Login
               </Link>
+
               <Link
                 to="/signup"
-                className="block hover:bg-green-600 px-3 py-2 rounded-md"
+                className={`block px-3 py-2 rounded-md
+                  ${isSignupPage ? "bg-green-500" : "hover:bg-white/20"}`}
               >
                 Signup
               </Link>
             </>
           )}
-
         </div>
       )}
     </nav>

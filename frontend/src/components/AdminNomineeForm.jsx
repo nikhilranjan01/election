@@ -40,7 +40,8 @@ function AdminNomineeForm({ setNominees }) {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-200 mb-10">
+    <div className="bg-white p-6 rounded-xl shadow-xl border border-gray-200 mb-10">
+
       <h3 className="text-2xl font-semibold text-gray-800 mb-6">
         Add New Nominee
       </h3>
