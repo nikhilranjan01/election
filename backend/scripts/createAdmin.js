@@ -1,7 +1,8 @@
+require("dotenv").config({ path: "../.env" });
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const { connectDB } = require("../config/db");
-require("dotenv").config();
+
 
 const createAdmin = async (email, password) => {
   try {
@@ -37,6 +38,4 @@ const createAdmin = async (email, password) => {
     process.exit(1);
   }
 };
-
-// 🔥 Change email/password here
 createAdmin("admin@jietjodhpur.ac.in", "Admin@123");
