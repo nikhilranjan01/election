@@ -6,6 +6,15 @@ Built using **React JS + Tailwind CSS + Node.js + MongoDB**, this project ensure
 
 ---
 
+## 📌 About
+**Student Voting System** is designed to provide a secure and transparent digital voting platform for colleges/schools.  
+Students can log in, view nominees, and cast their vote only once, while admins can manage candidates and monitor results through a dedicated dashboard.
+
+---
+
+## 🌐 Live Demo 🔗
+https://election01.vercel.app/
+
 ## 🌟 Key Highlights
 - 🔐 JWT Secure Authentication  
 - 👨‍🎓 Student & 👨‍💼 Admin Roles  
