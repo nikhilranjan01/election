@@ -3,13 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // mobile toggle
   const navigate = useNavigate();
 
   const { token, role, logout } = useAuth();
 
+  // safe login check
+  const isLoggedIn =
+    token && token !== "null" && token !== "undefined";
+
   const handleLogout = () => {
-    logout(); // 🔥 central logout
+    logout();
     navigate("/login");
   };
 
@@ -17,42 +21,39 @@ function Navbar() {
 
   return (
     <nav className="bg-gradient-to-r from-blue-700 to-indigo-600 text-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16 items-center">
-          {/* Logo + Title */}
+
+          {/* LOGO + TITLE */}
           <div className="flex items-center">
             <img
               src="/images/jiet-logo.png"
-              alt="JIET Logo"
-              className="h-10 w-10 mr-2 rounded-full shadow-md"
+              alt="Logo"
+              className="h-10 w-10 mr-2 rounded-full"
             />
-            <h1 className="text-lg md:text-xl font-bold tracking-wide">
+            <h1 className="text-lg md:text-xl font-bold">
               Student Council Election
             </h1>
           </div>
 
-          {/* Desktop Menu */}
+          {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link
-              to="/"
-              className="hover:bg-indigo-700 px-3 py-2 rounded-md transition"
-            >
-              Home
-            </Link>
 
-            {token && (
+            {/* Dashboard only if login */}
+            {isLoggedIn && (
               <Link
                 to={isAdmin ? "/admin-dashboard" : "/dashboard"}
-                className="hover:bg-indigo-700 px-3 py-2 rounded-md transition"
+                className="hover:bg-indigo-700 px-3 py-2 rounded-md"
               >
                 {isAdmin ? "Admin Dashboard" : "Student Dashboard"}
               </Link>
             )}
 
-            {token ? (
+            {/* Login / Logout */}
+            {isLoggedIn ? (
               <button
                 onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-md transition font-medium"
+                className="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-md"
               >
                 Logout
               </button>
@@ -60,13 +61,13 @@ function Navbar() {
               <>
                 <Link
                   to="/login"
-                  className="hover:bg-indigo-700 px-3 py-2 rounded-md transition"
+                  className="hover:bg-indigo-700 px-3 py-2 rounded-md"
                 >
-                Login
+                  Login
                 </Link>
                 <Link
                   to="/signup"
-                  className="hover:bg-green-700 px-3 py-2 rounded-md transition"
+                  className="hover:bg-green-700 px-3 py-2 rounded-md"
                 >
                   Signup
                 </Link>
@@ -74,78 +75,52 @@ function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="focus:outline-none"
-            >
-              <svg
-                className="w-7 h-7"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d={
-                    isOpen
-                      ? "M6 18L18 6M6 6l12 12"
-                      : "M4 6h16M4 12h16M4 18h16"
-                  }
-                />
-              </svg>
+          {/* MOBILE BUTTON */}
+          <div className="md:hidden">
+            <button onClick={() => setIsOpen(!isOpen)}>
+              ☰
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* MOBILE DROPDOWN */}
       {isOpen && (
-        <div className="md:hidden bg-indigo-700">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div className="md:hidden bg-indigo-700 px-3 py-2 space-y-2">
+
+          {isLoggedIn && (
             <Link
-              to="/"
+              to={isAdmin ? "/admin-dashboard" : "/dashboard"}
               className="block hover:bg-indigo-600 px-3 py-2 rounded-md"
             >
-              Home
+              {isAdmin ? "Admin Dashboard" : "Student Dashboard"}
             </Link>
+          )}
 
-            {token && (
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="w-full text-left bg-red-500 px-3 py-2 rounded-md"
+            >
+              Logout
+            </button>
+          ) : (
+            <>
               <Link
-                to={isAdmin ? "/admin-dashboard" : "/dashboard"}
+                to="/login"
                 className="block hover:bg-indigo-600 px-3 py-2 rounded-md"
               >
-                {isAdmin ? "Admin Dashboard" : "Student Dashboard"}
-              </Link>
-            )}
-
-            {token ? (
-              <button
-                onClick={handleLogout}
-                className="w-full text-left bg-red-500 hover:bg-red-600 px-3 py-2 rounded-md font-medium"
-              >
-                Logout
-              </button>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="block hover:bg-indigo-600 px-3 py-2 rounded-md"
-                >
                 Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className="block hover:bg-green-600 px-3 py-2 rounded-md"
-                >
-                  Signup
-                </Link>
-              </>
-            )}
-          </div>
+              </Link>
+              <Link
+                to="/signup"
+                className="block hover:bg-green-600 px-3 py-2 rounded-md"
+              >
+                Signup
+              </Link>
+            </>
+          )}
+
         </div>
       )}
     </nav>

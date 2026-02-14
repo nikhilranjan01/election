@@ -4,73 +4,67 @@ import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 const Dashboard = () => {
+
+  // ===== STATES =====
   const [nominees, setNominees] = useState([]);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // store voted nominees by ID (FIX)
+  const [votedNominees, setVotedNominees] = useState([]);
 
   const navigate = useNavigate();
   const { token, role } = useAuth();
 
-  // 🔒 Protect route
+  // ===== ROUTE PROTECTION =====
   useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
-    if (role !== "student") {
-      navigate("/");
-    }
+    if (!token) navigate("/login");
+    if (role !== "student") navigate("/");
   }, [token, role, navigate]);
 
-  // 📥 Fetch nominees
+  // ===== FETCH NOMINEES =====
   useEffect(() => {
     const fetchNominees = async () => {
       try {
         const res = await api.get("/api/nominees");
         setNominees(res.data);
-      } catch (err) {
+      } catch {
         setError("Failed to load nominees");
       } finally {
         setLoading(false);
       }
     };
-
     fetchNominees();
   }, []);
 
-  // 🗳️ Vote
+  // ===== VOTE FUNCTION =====
   const handleVote = async (nomineeId, position, name) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to vote for ${name} (${position})?`
-      )
-    )
-      return;
+
+    // already voted this nominee
+    if (votedNominees.includes(nomineeId)) return;
 
     try {
       await api.post(
         "/api/votes",
         { nomineeId, position },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      alert("✅ Vote cast successfully!");
+      // add nominee id in voted list
+      setVotedNominees([...votedNominees, nomineeId]);
+
+      setSuccess(`You voted for ${name}`);
       setError("");
     } catch (err) {
-      setError(
-        err.response?.data?.msg ||
-          "Voting failed. You may have already voted."
-      );
+      setError(err.response?.data?.msg || "Voting failed");
+      setSuccess("");
     }
   };
 
+  // ===== LOADING UI =====
   if (loading) {
-    return (
-      <p className="text-center text-white text-lg mt-10">Loading nominees…</p>
-    );
+    return <p className="text-center text-white mt-10">Loading…</p>;
   }
 
   return (
@@ -79,49 +73,67 @@ const Dashboard = () => {
       style={{ backgroundImage: "url('/images/background.jpeg')" }}
     >
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-white mb-6 drop-shadow">
+        <h2 className="text-3xl font-bold text-white mb-6">
           Student Dashboard
         </h2>
 
+        {success && (
+          <p className="text-green-700 bg-green-100 p-3 rounded mb-4">
+            {success}
+          </p>
+        )}
+
         {error && (
-          <p className="text-red-600 bg-white/80 p-3 rounded mb-4 w-fit shadow">
+          <p className="text-red-600 bg-white p-3 rounded mb-4">
             {error}
           </p>
         )}
 
         {nominees.length === 0 ? (
-          <p className="text-white bg-black/40 p-4 rounded w-fit">
-            No nominees available for voting.
+          <p className="text-white bg-black/40 p-4 rounded">
+            No nominees available.
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {nominees.map((nominee) => (
-              <div
-                key={nominee._id}
-                className="bg-white/80 p-6 rounded-xl shadow-xl border hover:shadow-2xl transition"
-              >
-                <h3 className="text-xl font-semibold text-gray-800">
-                  {nominee.name}
-                </h3>
+            {nominees.map((nominee) => {
 
-                <p className="mt-1 text-gray-700">
-                  <strong>Position:</strong> {nominee.position}
-                </p>
+              // check by nominee ID (FIX)
+              const isVoted = votedNominees.includes(nominee._id);
 
-                <button
-                  onClick={() =>
-                    handleVote(
-                      nominee._id,
-                      nominee.position,
-                      nominee.name
-                    )
-                  }
-                  className="mt-4 w-full p-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+              return (
+                <div
+                  key={nominee._id}
+                  className="bg-white/80 p-6 rounded-xl shadow-xl border"
                 >
-                  Vote
-                </button>
-              </div>
-            ))}
+                  <h3 className="text-xl font-semibold">
+                    {nominee.name}
+                  </h3>
+
+                  <p className="mt-1">
+                    <strong>Position:</strong> {nominee.position}
+                  </p>
+
+                  <button
+                    disabled={isVoted}
+                    onClick={() =>
+                      handleVote(
+                        nominee._id,
+                        nominee.position,
+                        nominee.name
+                      )
+                    }
+                    className={`mt-4 w-full p-3 rounded-lg text-white
+                      ${
+                        isVoted
+                          ? "bg-green-600 cursor-not-allowed"
+                          : "bg-blue-600 hover:bg-blue-700"
+                      }`}
+                  >
+                    {isVoted ? "Voted" : "Vote"}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
