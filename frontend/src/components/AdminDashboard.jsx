@@ -2,22 +2,21 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
-
 const AdminDashboard = () => {
   // ================= STATE =================
-  const [results, setResults] = useState([]); // election results
-  const [nominees, setNominees] = useState([]); // nominee list
-  const [nomineeName, setNomineeName] = useState(""); // input nominee name
-  const [position, setPosition] = useState("president"); // input position
-  const [error, setError] = useState(""); // error messages
+  const [results, setResults] = useState([]);
+  const [nominees, setNominees] = useState([]);
+  const [nomineeName, setNomineeName] = useState("");
+  const [position, setPosition] = useState("president");
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
   const { token, role } = useAuth();
 
   // ================= ROUTE PROTECTION =================
   useEffect(() => {
-    if (!token) navigate("/login"); // not logged in
-    if (role !== "admin") navigate("/"); // not admin
+    if (!token) navigate("/login");
+    if (role !== "admin") navigate("/");
   }, [token, role, navigate]);
 
   // ================= FETCH RESULTS =================
@@ -29,7 +28,7 @@ const AdminDashboard = () => {
         });
         setResults(res.data);
       } catch (err) {
-        setError(err.response?.data?.msg || "Failed to load results.");
+        setError("Failed to load results.");
       }
     };
     if (token) fetchResults();
@@ -43,8 +42,8 @@ const AdminDashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setNominees(res.data);
-      } catch (err) {
-        setError(err.response?.data?.msg || "Failed to load nominees.");
+      } catch {
+        setError("Failed to load nominees.");
       }
     };
     if (token) fetchNominees();
@@ -60,10 +59,10 @@ const AdminDashboard = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setNominees([...nominees, res.data]); // add in UI
-      setNomineeName(""); // clear input
-    } catch (err) {
-      setError(err.response?.data?.msg || "Failed to add nominee.");
+      setNominees([...nominees, res.data]);
+      setNomineeName("");
+    } catch {
+      setError("Failed to add nominee.");
     }
   };
 
@@ -74,38 +73,42 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setNominees(nominees.filter((n) => n._id !== id)); // remove from UI
-    } catch (err) {
-      setError(err.response?.data?.msg || "Failed to delete nominee.");
+      setNominees(nominees.filter((n) => n._id !== id));
+    } catch {
+      setError("Failed to delete nominee.");
     }
   };
 
-  // ================= DELETE RESULT (FRONTEND ONLY) =================
-  const deleteResult = (indexToDelete) => {
-    const updated = results.filter((_, i) => i !== indexToDelete);
-    setResults(updated);
+  // ================= DELETE RESULT (DATABASE) =================
+  const deleteResult = async (nomineeId) => {
+    try {
+      await api.delete(`/api/votes/results/${nomineeId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setResults(results.filter((r) => r._id !== nomineeId));
+    } catch {
+      setError("Failed to delete result.");
+    }
   };
 
   return (
-    <div
-      className="min-h-screen pt-24 
-  bg-gradient-to-br from-blue-100 via-indigo-200 to-purple-200"
-    >
-      <div className="backdrop-blur-md bg-white bg-opacity-70 max-w-5xl mx-auto p-6 rounded-2xl shadow-xl">
+    <div className="min-h-screen pt-24 bg-gradient-to-br from-blue-100 via-indigo-200 to-purple-200">
+      <div className="bg-white max-w-5xl mx-auto p-6 rounded-2xl shadow-2xl">
 
-        {/* ================= TITLE ================= */}
+        {/* TITLE */}
         <h2 className="text-3xl font-bold text-center text-indigo-700 mb-8">
           Admin Dashboard
         </h2>
 
-        {/* ================= ERROR ================= */}
+        {/* ERROR */}
         {error && (
           <p className="text-center text-red-500 bg-red-100 p-2 rounded mb-4">
             {error}
           </p>
         )}
 
-        {/* ================= ADD NOMINEE ================= */}
+        {/* ADD NOMINEE */}
         <div className="bg-white shadow-md rounded-xl p-6 mb-8">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             Add Nominee
@@ -141,7 +144,7 @@ const AdminDashboard = () => {
           </form>
         </div>
 
-        {/* ================= NOMINEES LIST ================= */}
+        {/* NOMINEES LIST */}
         <div className="bg-white shadow-md rounded-xl p-6 mb-8">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             Nominees List
@@ -168,7 +171,7 @@ const AdminDashboard = () => {
           )}
         </div>
 
-        {/* ================= RESULTS ================= */}
+        {/* RESULTS */}
         <div className="bg-white shadow-md rounded-xl p-6">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             Election Results
@@ -178,9 +181,9 @@ const AdminDashboard = () => {
             <p>No votes cast yet.</p>
           ) : (
             <div className="space-y-4">
-              {results.map((result, index) => (
+              {results.map((result) => (
                 <div
-                  key={index}
+                  key={result._id}
                   className="p-4 border rounded-lg bg-gray-50 shadow-sm flex justify-between items-center"
                 >
                   <div>
@@ -189,9 +192,8 @@ const AdminDashboard = () => {
                     <p><strong>Votes:</strong> {result.votes}</p>
                   </div>
 
-                  {/* DELETE RESULT BUTTON */}
                   <button
-                    onClick={() => deleteResult(index)}
+                    onClick={() => deleteResult(result._id)}
                     className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg"
                   >
                     Delete

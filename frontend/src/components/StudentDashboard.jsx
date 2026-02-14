@@ -11,7 +11,7 @@ const Dashboard = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // store voted nominees by ID (FIX)
+  // voted nominee IDs
   const [votedNominees, setVotedNominees] = useState([]);
 
   const navigate = useNavigate();
@@ -38,11 +38,27 @@ const Dashboard = () => {
     fetchNominees();
   }, []);
 
+  // ===== FETCH MY VOTES =====
+  useEffect(() => {
+    const fetchMyVotes = async () => {
+      try {
+        const res = await api.get("/api/votes/my-votes", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setVotedNominees(res.data); // array of nominee IDs
+      } catch {
+        console.log("Failed to fetch my votes");
+      }
+    };
+
+    if (token) fetchMyVotes();
+  }, [token]);
+
   // ===== VOTE FUNCTION =====
   const handleVote = async (nomineeId, position, name) => {
 
-    // already voted this nominee
-    if (votedNominees.includes(nomineeId)) return;
+    if (votedNominees.includes(nomineeId.toString())) return;
 
     try {
       await api.post(
@@ -51,9 +67,8 @@ const Dashboard = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // add nominee id in voted list
-      setVotedNominees([...votedNominees, nomineeId]);
-
+      // update UI instantly
+      setVotedNominees([...votedNominees, nomineeId.toString()]);
       setSuccess(`You voted for ${name}`);
       setError("");
     } catch (err) {
@@ -68,10 +83,7 @@ const Dashboard = () => {
   }
 
   return (
-<div
-  className="min-h-screen py-10 
-  bg-gradient-to-br from-red-200 via-blue-300 to-indigo-200"
->
+    <div className="min-h-screen py-10 bg-gradient-to-br from-red-200 via-blue-300 to-indigo-200">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-black mb-6">
           Student Dashboard
@@ -97,8 +109,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {nominees.map((nominee) => {
 
-              // check by nominee ID (FIX)
-              const isVoted = votedNominees.includes(nominee._id);
+              const isVoted = votedNominees.includes(nominee._id.toString());
 
               return (
                 <div
