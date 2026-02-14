@@ -100,7 +100,7 @@ student-voting-system/
 │   │   ├── App.css
 │   │   ├── index.css
 │   │   └── main.jsx
-│
+│   │
 │   ├── index.html
 │   ├── tailwind.config.js
 │   ├── postcss.config.js
