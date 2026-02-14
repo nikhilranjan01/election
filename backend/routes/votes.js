@@ -30,7 +30,7 @@ router.post("/", auth, async (req, res) => {
 
     await vote.save();
 
-    // 🔥 IMPORTANT: increment nominee votes
+    // increment nominee votes
     nominee.votes = (nominee.votes || 0) + 1;
     await nominee.save();
 
@@ -76,7 +76,7 @@ router.get("/results", auth, adminAuth, async (req, res) => {
       },
       {
         $project: {
-          _id: 0,
+          _id: "$_id.nomineeId", // IMPORTANT for delete
           nomineeName: "$_id.nomineeName",
           position: "$_id.position",
           votes: 1,
@@ -91,5 +91,35 @@ router.get("/results", auth, adminAuth, async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 });
+
+// ================== DELETE RESULT (ADMIN ONLY) ==================
+router.delete("/results/:nomineeId", auth, adminAuth, async (req, res) => {
+  try {
+    const nomineeId = req.params.nomineeId;
+
+    // delete all votes of nominee
+    await Vote.deleteMany({ nominee: nomineeId });
+
+    // reset nominee vote count
+    await Nominee.findByIdAndUpdate(nomineeId, { votes: 0 });
+
+    res.json({ msg: "Result deleted successfully" });
+  } catch (error) {
+    console.error("Delete result error:", error);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
+
+router.get("/my-votes", auth, async (req, res) => {
+  try {
+    const votes = await Vote.find({ user: req.user.id });
+    const nomineeIds = votes.map(v => v.nominee.toString());
+    res.json(nomineeIds);
+  } catch {
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
 
 module.exports = router;
