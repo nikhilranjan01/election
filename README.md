@@ -15,6 +15,8 @@ Students can log in, view nominees, and cast their vote only once, while admins 
 ## 🌐 Live Demo 🔗
 https://election01.vercel.app/
 
+---
+
 ## 🌟 Key Highlights
 - 🔐 JWT Secure Authentication  
 - 👨‍🎓 Student & 👨‍💼 Admin Roles  
