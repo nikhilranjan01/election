@@ -16,7 +16,7 @@ build/
 frontend/.env
 backend/.env
 
-# Editor files
+# Editor filess
 .vscode/
 .idea/
 .DS_Store
