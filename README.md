@@ -1,28 +1,204 @@
-## Project Description
-Welcome to the Student Election, a web-based application designed to facilitate student elections. This project allows users to register, log in, nominate candidates, and cast votes through a user-friendly interface. Built with React 19 and Vite for the frontend, and Node.js, Express, and MongoDB for the backend, it provides a seamless experience for managing election processes. The application is developed with modern web technologies and is optimized for both desktop and mobile use.
-## 🚀 How to Run the Project
+# 🗳️ Student Voting System
 
-To get this full-stack Flower Pot project running locally, follow the steps below for both the back and front end.
+A modern **Full-Stack Student Voting Web Application** where students can securely cast their vote and admins can manage nominees and view live results.
 
-### Prerequisite
+Built using **React JS + Tailwind CSS + Node.js + MongoDB**, this project ensures **secure login, one-vote restriction, and role-based dashboards.**
 
-To make this project work as intended make sure you have MongoDB installed and running in your system.
+---
 
+## 🌟 Key Highlights
+- 🔐 JWT Secure Authentication  
+- 👨‍🎓 Student & 👨‍💼 Admin Roles  
+- 🗳️ One Student = One Vote  
+- 📊 Admin Result Dashboard  
+- ⚡ Fast UI with Vite  
+- 📱 Responsive Design using Tailwind CSS  
 
-### 🔧 Backend Setup
+---
 
-1. Open a terminal and navigate to the `backend` folder:
+## 🚀 Tech Stack
 
-   ```bash
-   cd backend
-   npm install
-   npm start
+### Frontend
+- React JS  
+- Tailwind CSS  
+- Vite  
+- React Router DOM  
+- Context API  
+- Axios  
 
-### 🔧 Frontend Setup
+### Backend
+- Node.js  
+- Express.js  
+- MongoDB  
+- Mongoose  
+- JWT Authentication  
+- BcryptJS  
+- dotenv  
 
-1. Now navigate to the `frontend` folder:
+---
 
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
+## 📂 Project Structure
+
+```
+student-voting-system/
+│
+├── backend/
+│   ├── config/
+│   │   └── db.js
+│   ├── middleware/
+│   │   └── auth.js
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Nominee.js
+│   │   └── Vote.js
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── nominees.js
+│   │   └── votes.js
+│   ├── scripts/
+│   │   └── createAdmin.js
+│   ├── .env
+│   ├── server.js
+│   └── package.json
+│
+├── frontend/
+│   ├── public/
+│   │   └── vite.svg
+│   │
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   ├── AdminNomineeForm.jsx
+│   │   │   ├── ErrorBoundary.jsx
+│   │   │   ├── Greeting.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── NominationForm.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   ├── Signup.jsx
+│   │   │   ├── StudentDashboard.jsx
+│   │   │   └── VotingForm.jsx
+│   │
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │
+│   │   ├── services/
+│   │   │   └── api.js
+│   │
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   ├── index.css
+│   │   └── main.jsx
+│
+│   ├── index.html
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   ├── vite.config.js
+│   └── package.json
+```
+
+---
+
+## ✨ Features
+
+### 👨‍🎓 Student
+- Signup / Login  
+- View Nominees  
+- Vote Only Once  
+- Student Dashboard  
+
+### 👨‍💼 Admin
+- Admin Login  
+- Add / Delete Nominees  
+- View Voting Results  
+- Manage Users  
+
+---
+
+## 🔐 Security
+- JWT Token Authentication  
+- Password Hashing (Bcrypt)  
+- Protected Routes  
+- Role-Based Access  
+- Single Vote Restriction  
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Clone Repository
+```bash
+git clone <your-repo-link>
+cd student-voting-system
+```
+
+### 2. Backend Setup
+```bash
+cd backend
+npm install
+```
+
+Create `.env` file:
+```
+PORT=5000
+MONGO_URI=your_mongodb_url
+JWT_SECRET=your_secret_key
+```
+
+Run Backend:
+```bash
+npm start
+```
+
+### 3. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## 🧠 Working Flow
+1. Student creates account  
+2. Admin adds nominees  
+3. Student logs in and votes  
+4. Vote stored securely in MongoDB  
+5. Admin views results in dashboard  
+
+---
+
+## 📦 Major Dependencies
+
+### Frontend
+- react
+- react-router-dom
+- axios
+- tailwindcss
+
+### Backend
+- express
+- mongoose
+- jsonwebtoken
+- bcryptjs
+- cors
+- dotenv
+
+---
+
+## 🔮 Future Improvements
+- Email / OTP Verification  
+- Live Result Charts  
+- Multi-Election Support  
+- Dark Mode  
+- Export Results (PDF/Excel)  
+
+---
+
+## 👨‍💻 Author
+**Nikhil Ranjan**
+
+---
+
+## 📜 License
+This project is for **Learning & Educational Purposes Only**.
