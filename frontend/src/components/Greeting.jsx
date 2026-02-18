@@ -1,18 +1,29 @@
-// import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 function Greeting() {
   const navigate = useNavigate();
 
+  const [show, setShow] = useState(false); // animation control
+
+  // Smooth fade-in animation on mount
+  useEffect(() => {
+    setShow(true);
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4
-    bg-gradient-to-br from-blue-200 via-purple-200 to-pink-200">
-
+    <div
+      className="min-h-screen flex items-center justify-center px-4
+      bg-gradient-to-br from-blue-200 via-purple-200 to-pink-200 transition-all duration-700"
+    >
       {/* MAIN CONTAINER */}
-      <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-3xl w-full text-center">
-
+      <div
+        className={`bg-white rounded-3xl shadow-2xl p-10 max-w-3xl w-full text-center
+        transform transition-all duration-700
+        ${show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+      >
         {/* TITLE */}
-        <h1 className="text-5xl font-extrabold text-indigo-700 mb-4">
+        <h1 className="text-5xl font-extrabold text-indigo-700 mb-4 animate-pulse">
           Student Voting System
         </h1>
 
@@ -25,8 +36,7 @@ function Greeting() {
 
         {/* FEATURE BOXES */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-
-          <div className="bg-indigo-50 p-4 rounded-xl shadow-sm">
+          <div className="bg-indigo-50 p-4 rounded-xl shadow-sm hover:shadow-md transition">
             <h3 className="font-semibold text-indigo-700 mb-1">
               Secure Voting
             </h3>
@@ -35,7 +45,7 @@ function Greeting() {
             </p>
           </div>
 
-          <div className="bg-green-50 p-4 rounded-xl shadow-sm">
+          <div className="bg-green-50 p-4 rounded-xl shadow-sm hover:shadow-md transition">
             <h3 className="font-semibold text-green-700 mb-1">
               Live Results
             </h3>
@@ -44,7 +54,7 @@ function Greeting() {
             </p>
           </div>
 
-          <div className="bg-purple-50 p-4 rounded-xl shadow-sm">
+          <div className="bg-purple-50 p-4 rounded-xl shadow-sm hover:shadow-md transition">
             <h3 className="font-semibold text-purple-700 mb-1">
               Easy Access
             </h3>
@@ -52,33 +62,31 @@ function Greeting() {
               Simple login and fast voting process.
             </p>
           </div>
-
         </div>
 
         {/* BUTTONS */}
         <div className="flex flex-col sm:flex-row gap-5 justify-center">
-
           <button
             onClick={() => navigate("/login")}
-            className="px-8 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-md"
+            className="px-8 py-3 rounded-xl bg-indigo-600 text-white font-semibold 
+            hover:bg-indigo-700 hover:scale-105 transition duration-300 shadow-md"
           >
             Login
           </button>
 
           <button
             onClick={() => navigate("/signup")}
-            className="px-8 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition shadow-md"
+            className="px-8 py-3 rounded-xl bg-green-600 text-white font-semibold 
+            hover:bg-green-700 hover:scale-105 transition duration-300 shadow-md"
           >
             Create Account
           </button>
-
         </div>
 
         {/* FOOTER TEXT */}
         <p className="mt-10 text-sm text-gray-500">
           © 2026 Student Election Portal • Secure • Transparent • Reliable
         </p>
-
       </div>
     </div>
   );
