@@ -14,7 +14,7 @@ function Greeting() {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4
-      bg-gradient-to-br from-blue-200 via-purple-200 to-pink-200 transition-all duration-700"
+      bg-linear-to-br from-blue-200 via-purple-200 to-pink-200 transition-all duration-700"
     >
       {/* MAIN CONTAINER */}
       <div

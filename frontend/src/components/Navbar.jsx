@@ -26,7 +26,7 @@ function Navbar() {
   const isSignupPage = location.pathname === "/signup";
 
   return (
-    <nav className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-700 text-white shadow-lg sticky top-0 z-50">
+    <nav className="bg-linear-to-r from-cyan-600 via-blue-600 to-indigo-700 text-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16 items-center">
 
@@ -107,7 +107,7 @@ function Navbar() {
 
       {/* MOBILE DROPDOWN */}
       {isOpen && (
-        <div className="md:hidden bg-gradient-to-b from-blue-700 to-indigo-800 px-3 py-2 space-y-2">
+        <div className="md:hidden bg-linear-to-b from-blue-700 to-indigo-800 px-3 py-2 space-y-2">
 
           {/* HOME */}
           <Link

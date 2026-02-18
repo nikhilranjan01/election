@@ -58,7 +58,7 @@ const Signup = () => {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4
-      bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500"
+      bg-linear-to-br from-emerald-500 via-teal-500 to-cyan-500"
     >
       {/* ===== CARD ===== */}
       <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
